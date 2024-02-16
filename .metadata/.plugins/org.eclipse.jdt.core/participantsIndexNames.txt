@@ -1,0 +1,5 @@
+INDEX VERSION 1.131
+C:\1128_calculator\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2740370173.index
+\calculator\src\main\java
+C:\1128_calculator\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\166452577.index
+\calculator\src\main\java

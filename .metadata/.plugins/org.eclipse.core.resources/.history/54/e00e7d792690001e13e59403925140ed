@@ -1,0 +1,173 @@
+package com.twin.spring.calculator.controller;
+
+import java.util.Stack;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+public class CalController {
+
+    @ResponseBody
+    @RequestMapping("calculator.cl")
+    public String calculator(String infix) {
+        // 괄호 쌍 확인
+        if (!checkParenthesis(infix)) {
+            return "NNNN";
+        }
+
+        System.out.println(infix);
+        String postfix = convPostfix(infix);
+        System.out.println(postfix);
+        System.out.println(postfixCalculate(postfix));
+        String result = postfixCalculate(postfix) + "";
+        return result;
+    }
+
+    // 괄호체크
+    public boolean checkParenthesis(String expression) {
+        Stack<Character> stack = new Stack<>();
+
+        for (char c : expression.toCharArray()) {
+            if (c == '(') {
+                stack.push(c);
+            } else if (c == ')') {
+                if (stack.isEmpty() || stack.pop() != '(') {
+                    return false;
+                }
+            }
+        }
+        return stack.isEmpty();
+    }
+
+    public static double postfixCalculate(String postfix) {
+        Stack<Double> stack = new Stack<>();
+        char c = ' ';
+        double op1 = 0;
+        double op2 = 0;
+
+        for (int i = 0; i < postfix.length(); i++) {
+            c = postfix.charAt(i);
+
+            if (Character.isDigit(c)) {
+                StringBuilder num = new StringBuilder();
+                while (i < postfix.length() && (Character.isDigit(postfix.charAt(i)) || postfix.charAt(i) == '.')) {
+                    num.append(postfix.charAt(i++));
+                }
+                stack.push(Double.parseDouble(num.toString()));
+                i--; // 다음 문자 확인을 위한 감소
+            } else {
+                op2 = stack.pop();
+                op1 = stack.pop();
+
+                switch (c) {
+                    case '+':
+                        stack.push(op1 + op2);
+                        break;
+                    case '-':
+                        stack.push(op1 - op2);
+                        break;
+                    case '*':
+                        stack.push(op1 * op2);
+                        break;
+                    case '/':
+                        stack.push(op1 / op2);
+                        break;
+                }
+            }
+        }
+
+        return stack.pop();
+    }
+
+    public static String convPostfix(String infix) {
+        char c = ' ';
+        Stack<Character> opStack = new Stack<>();
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < infix.length(); i++) {
+            c = infix.charAt(i);
+
+            if (Character.isDigit(c)) {
+                StringBuilder num = new StringBuilder();
+                while (i < infix.length() && (Character.isDigit(infix.charAt(i)) || infix.charAt(i) == '.')) {
+                    num.append(infix.charAt(i++));
+                }
+                sb.append(num.toString()).append(' ');
+                i--; // 다음 문자 확인을 위한 감소
+            } else if (opStack.isEmpty()) {
+                opStack.push(c);
+            } else {
+                if (c == '(') {
+                    opStack.push(c);
+                    continue;
+                } else if (c == ')') {
+                    char check = ' ';
+                    while (true) {
+                        check = opStack.pop();
+                        if (check == '(') {
+                            break;
+                        } else {
+                            sb.append(check).append(' ');
+                        }
+                    }
+                    continue;
+                }
+
+                if (compareOp(opStack.peek(), c) > 0) {
+                    opStack.push(c);
+                } else {
+                    while (!opStack.isEmpty()) {
+                        if (compareOp(opStack.peek(), c) <= 0) {
+                            sb.append(opStack.pop()).append(' ');
+                        } else {
+                            break;
+                        }
+                    }
+                    opStack.push(c);
+                }
+            }
+        }
+
+        while (!opStack.isEmpty()) {
+            char check = opStack.pop();
+            if (check != '(') {
+                sb.append(check).append(' ');
+            }
+        }
+
+        return sb.toString().trim();
+    }
+
+    public static int getOpPriority(char c) {
+        switch (c) {
+            case '*':
+            case '/':
+                return 3;
+
+            case '+':
+            case '-':
+                return 2;
+
+            case '(':
+                return 1;
+
+            default:
+                return -1;
+        }
+    }
+
+    public static int compareOp(char stackOp, char curOp) {
+        int stackOpPriority = getOpPriority(stackOp);
+        int curOpPriority = getOpPriority(curOp);
+
+        if (stackOpPriority < curOpPriority) {
+            return 1;
+        } else if (stackOpPriority == curOpPriority) {
+            return 0;
+        } else {
+            return -1;
+        }
+    }
+}

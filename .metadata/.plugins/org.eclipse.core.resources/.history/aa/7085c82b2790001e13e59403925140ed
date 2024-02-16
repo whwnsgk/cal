@@ -1,0 +1,83 @@
+import java.util.Stack;
+
+public class Calculator {
+
+    public static void main(String[] args) {
+        String infixExpression = "20+3";
+        String postfixExpression = convertToPostfix(infixExpression);
+        System.out.println("Infix: " + infixExpression);
+        System.out.println("Postfix: " + postfixExpression);
+        System.out.println("Result: " + evaluatePostfix(postfixExpression));
+    }
+
+    public static String convertToPostfix(String infix) {
+        StringBuilder postfix = new StringBuilder();
+        Stack<Character> stack = new Stack<>();
+
+        for (char c : infix.toCharArray()) {
+            if (Character.isDigit(c)) {
+                postfix.append(c);
+            } else if (c == '(') {
+                stack.push(c);
+            } else if (c == ')') {
+                while (!stack.isEmpty() && stack.peek() != '(') {
+                    postfix.append(stack.pop());
+                }
+                stack.pop(); // Pop the '('
+            } else {
+                while (!stack.isEmpty() && getPrecedence(stack.peek()) >= getPrecedence(c)) {
+                    postfix.append(stack.pop());
+                }
+                stack.push(c);
+            }
+        }
+
+        while (!stack.isEmpty()) {
+            postfix.append(stack.pop());
+        }
+
+        return postfix.toString();
+    }
+
+    public static int evaluatePostfix(String postfix) {
+        Stack<Integer> stack = new Stack<>();
+
+        for (char c : postfix.toCharArray()) {
+            if (Character.isDigit(c)) {
+                stack.push(Character.getNumericValue(c));
+            } else {
+                int operand2 = stack.pop();
+                int operand1 = stack.pop();
+                switch (c) {
+                    case '+':
+                        stack.push(operand1 + operand2);
+                        break;
+                    case '-':
+                        stack.push(operand1 - operand2);
+                        break;
+                    case '*':
+                        stack.push(operand1 * operand2);
+                        break;
+                    case '/':
+                        stack.push(operand1 / operand2);
+                        break;
+                }
+            }
+        }
+
+        return stack.pop();
+    }
+
+    private static int getPrecedence(char operator) {
+        switch (operator) {
+            case '+':
+            case '-':
+                return 1;
+            case '*':
+            case '/':
+                return 2;
+            default:
+                return 0; // For '('
+        }
+    }
+}

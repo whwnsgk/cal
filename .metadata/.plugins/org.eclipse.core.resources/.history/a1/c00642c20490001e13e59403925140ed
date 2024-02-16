@@ -1,0 +1,19 @@
+
+package com.twin.spring.calculator.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+public class CalController {
+	
+	@ResponseBody
+	@RequestMapping("calculator.cl")
+	public double calculator(String expression) {
+		System.out.println("ajax 어서오고");
+		System.out.println(expression);
+		return 0 ; 
+	}
+}
